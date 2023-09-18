@@ -16,6 +16,7 @@ Log.Logger = new LoggerConfiguration()
         RollingInterval.Day)
     .CreateLogger();
 var builder = WebApplication.CreateBuilder(args);
+ConfigurationManager configuration = builder.Configuration;
 
 builder.Host.UseSerilog();
 builder.Services.AddAutoMapper(config =>
@@ -25,7 +26,7 @@ builder.Services.AddAutoMapper(config =>
 });
 
 builder.Services.AddApplication();
-builder.Services.AddPersistence();
+builder.Services.AddPersistence(configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks()
