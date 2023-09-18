@@ -8,10 +8,18 @@ public class ApiKeys
 
 public class Product
 {
+    public int Id { get; set; }
     public string? Title { get; set; }
     public int Price { get; set; }
-    public List<string>? Sizes { get; set; }
+    public List<Size>? Sizes { get; set; } = new List<Size>();
     public string? Description { get; set; }
+}
+public class Size
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int ProductId { get; set; }  // Foreign key for Product
+    public Product Product { get; set; }
 }
 
 public class Root
