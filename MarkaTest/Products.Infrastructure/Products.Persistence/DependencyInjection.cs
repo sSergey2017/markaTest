@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Products.Application.Interfaces;
+using Products.Application.Products.Queries.GetProductsFilter;
 
 namespace Products.Persistence;
 
@@ -21,6 +22,8 @@ public static class DependencyInjection
             if (SD.MockyAPIBase != null) c.BaseAddress = new Uri(SD.MockyAPIBase);
         });
         services.AddScoped<IProductInitializationService, ProductInitializationService>();
+        services.AddMemoryCache();
+        services.AddScoped<IProductFilterAnalyzer, ProductFilterAnalyzer>();
         services.AddHostedService<ProductInitializationHostedService>();
 
         return services;
