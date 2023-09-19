@@ -50,7 +50,7 @@ public class ProductRepository : IProductRepository
         }
         if (query.MinPrice > 0)
         {
-            predicate = predicate.And(p => p.Price <= query.MinPrice);
+            predicate = predicate.And(p => p.Price >= query.MinPrice);
         }
 
         if (query.Sizes != null && query.Sizes.Any())
