@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Products.Application.Products.Queries.GetProductsFilter;
+using Serilog;
 
 namespace Products.WebApi.Controllers;
 
@@ -24,6 +25,8 @@ public class ProductController : BaseController
     [HttpGet("filter")]
     public async Task<ActionResult<ProductionListVm>> FilterProducts([FromQuery] GetProductsFilterQuery query)
     {
+        Log.Information("GetProductsFilterQuery: {@Query}", query);
+
         var vm = await Mediator.Send(query);
         return Ok(vm);
     }

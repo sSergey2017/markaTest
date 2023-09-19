@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Polly.Retry;
 using Products.Application.Interfaces;
 using Products.Domain;
 using Products.Persistence.Models;
+using Serilog;
 
 namespace Products.Persistence;
 
@@ -9,17 +11,25 @@ public class ProductInitializationService : BaseService, IProductInitializationS
 {
     private readonly IProductRepository _repository;
     private IProductFilterAnalyzer _analyzer;
+    private readonly AsyncRetryPolicy _retryPolicy;
 
-    public ProductInitializationService(IHttpClientFactory httpClientFactory, IProductRepository repository, IProductFilterAnalyzer analyzer) : base(httpClientFactory)
+
+    public ProductInitializationService(IHttpClientFactory httpClientFactory, 
+        IProductRepository repository, 
+        IProductFilterAnalyzer analyzer, 
+        RetryPolicyProvider retryPolicyProvider) 
+        : base(httpClientFactory)
     {
         _repository = repository;
         _analyzer = analyzer;
+        _retryPolicy = retryPolicyProvider.GetDefaultRetryPolicy();
     }
 
     public async Task InitializeProduct()
     {
         CancellationToken token = new CancellationToken();
         var res = await GetAllProducts<RootDTO>();
+        Log.Information("Products List: {@Res}", res);
         var data = ConvertProducts(res);
         await _repository.AddProducts(data, token);
         await _analyzer.InvalidateAndRebuildCache(token);
@@ -60,10 +70,10 @@ public class ProductInitializationService : BaseService, IProductInitializationS
 
     private async Task<T> GetAllProducts<T>()
     {
-        return await this.SendAsync<T>(new ApiRequest()
+        return await _retryPolicy.ExecuteAsync(async () => await SendAsync<T>(new ApiRequest
         {
             ApiType = SD.ApiType.GET,
             Url = SD.MockyAPIBase,
-        });
+        }));
     }
 }

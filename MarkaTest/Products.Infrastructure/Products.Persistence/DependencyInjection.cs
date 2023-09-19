@@ -11,6 +11,7 @@ public static class DependencyInjection
     public static IServiceCollection AddPersistence(this IServiceCollection
         services, IConfiguration configuration)
     {
+        services.AddSingleton<RetryPolicyProvider>();
         services.AddDbContext<ProductDbContext>(options =>
             options.UseInMemoryDatabase("ProductDataDb"));
         
